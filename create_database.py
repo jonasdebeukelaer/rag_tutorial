@@ -52,6 +52,7 @@ def save_to_chroma(chunks) -> None:
     Chroma.from_documents(
         chunks,
         OpenAIEmbeddings(),
+        collection_name="books",
         persist_directory=CHROMA_PATH,
     )
 
