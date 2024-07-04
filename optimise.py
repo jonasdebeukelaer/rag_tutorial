@@ -1,5 +1,5 @@
-import os
-from typing import Callable, List
+from typing import List
+import random
 
 import dspy
 from dspy.datasets import DataLoader
@@ -14,6 +14,9 @@ gpt4 = dspy.OpenAI(model="gpt-4", max_tokens=1000)
 def main():
     print("Load data...")
     dataset = DataLoader().from_csv("data/testing_data.csv", input_keys=("question",))
+    
+    random.shuffle(dataset)
+    
 
     train_dev_ratio = 0.3
     split = int(train_dev_ratio * len(dataset))
@@ -71,7 +74,7 @@ def optimise(program: dspy.Module, trainset: List[dspy.Example]) -> dspy.Module:
         metric=metric,
         metric_threshold=0.7,
         max_bootstrapped_demos=4,
-        max_labeled_demos=4,
+        max_labeled_demos=20,
         max_rounds=10,
     )
     return optimiser.compile(program, trainset=trainset)
