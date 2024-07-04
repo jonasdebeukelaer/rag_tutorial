@@ -14,9 +14,8 @@ gpt4 = dspy.OpenAI(model="gpt-4", max_tokens=1000)
 def main():
     print("Load data...")
     dataset = DataLoader().from_csv("data/testing_data.csv", input_keys=("question",))
-    
+
     random.shuffle(dataset)
-    
 
     train_dev_ratio = 0.3
     split = int(train_dev_ratio * len(dataset))
@@ -28,7 +27,6 @@ def main():
 
     print("\nCreating optimised program...")
     opti_program = optimise(program, trainset)
-
 
     print("\nUnoptimised program evaluation:")
     evaluator(program, devset)
@@ -49,7 +47,9 @@ class Assess(dspy.Signature):
 
 def metric(gold: dspy.Example, pred: dspy.Prediction, trace=None):
     with dspy.context(lm=gpt4):
-        assessed = dspy.Predict(Assess)(statement_1=gold.answer, statement_2=pred.answer)
+        assessed = dspy.Predict(Assess)(
+            statement_1=gold.answer, statement_2=pred.answer
+        )
 
     if trace is None:
         return float(assessed.similarity)
@@ -58,7 +58,9 @@ def metric(gold: dspy.Example, pred: dspy.Prediction, trace=None):
 
 
 def evaluator(program: dspy.Module, devset: List[dspy.Example]):
-    evaluate = Evaluate(devset=devset, num_threads=1, display_progress=True, display_table=True)
+    evaluate = Evaluate(
+        devset=devset, num_threads=1, display_progress=True, display_table=True
+    )
 
     # Launch evaluation.
     result = evaluate(program, metric=metric)
@@ -66,7 +68,6 @@ def evaluator(program: dspy.Module, devset: List[dspy.Example]):
 
 
 def optimise(program: dspy.Module, trainset: List[dspy.Example]) -> dspy.Module:
-
     # Set up the optimizer: we want to "bootstrap" (i.e., self-generate) 8-shot examples of your program's steps.
     # The optimizer will repeat this 10 times (plus some initial attempts) before selecting its best attempt on the devset.
 

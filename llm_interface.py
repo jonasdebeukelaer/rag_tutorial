@@ -37,7 +37,7 @@ class RAG(dspy.Module):
         self.retriever = dspy.Retrieve(
             k=number_of_extracts
         )  # could define custom retriver which also returns the source document data
-        self.sumariser = dspy.Predict("question, context -> answer")
+        self.sumariser = dspy.ChainOfThought("question, context -> answer")
 
     def forward(self, question: str) -> dspy.Prediction:
         """Summarises the information contained in the extracts to answer the question"""
